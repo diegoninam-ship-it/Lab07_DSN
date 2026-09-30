@@ -19,6 +19,7 @@ class Config:
         "pool_recycle": 300,
     }
 
+    WTF_I18N_ENABLED = False  # Flask-WTF ignoraría Meta.locales si estuviera activo
     SESSION_COOKIE_HTTPONLY = True
     SESSION_COOKIE_SAMESITE = "Lax"
     # Sin SESSION_COOKIE_SECURE: el ALB solo expone HTTP (limitación documentada)

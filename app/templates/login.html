@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}Iniciar sesión · Lab07{% endblock %}
+{% block contenido %}
+<h1>Iniciar sesión</h1>
+<form method="post" style="max-width:380px;">
+  {{ form.hidden_tag() }}
+  <label for="correo">Correo</label>
+  {{ form.correo(id="correo", autocomplete="username") }}
+  {% for e in form.correo.errors %}<div class="campo-error">{{ e }}</div>{% endfor %}
+  <label for="password">Contraseña</label>
+  {{ form.password(id="password", autocomplete="current-password") }}
+  {% for e in form.password.errors %}<div class="campo-error">{{ e }}</div>{% endfor %}
+  <button class="btn" type="submit">Entrar</button>
+</form>
+{% endblock %}

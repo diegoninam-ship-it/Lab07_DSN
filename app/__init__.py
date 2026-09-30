@@ -20,10 +20,19 @@ def create_app():
     from app.publico import bp as publico_bp
     app.register_blueprint(publico_bp)  # /health, /whoami, /carga en ambos modos
 
-    # Paso 5 y siguientes: modelos, y blueprints web o api según APP_MODE
+    if app.config["APP_MODE"] == "web":
+        from app.auth import bp as auth_bp
+        from app.productos import bp as productos_bp
+
+        app.register_blueprint(auth_bp)
+        app.register_blueprint(productos_bp)
+    # APP_MODE=api: el blueprint de la API se agrega para el Ejercicio 4
 
     @app.context_processor
     def inyectar_servidor():
         return {"server_id": app.config["SERVER_ID"]}
 
+    from app.cli import register_cli
+    register_cli(app)
+    
     return app
