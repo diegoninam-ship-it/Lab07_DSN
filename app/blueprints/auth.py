@@ -10,7 +10,6 @@ bp = Blueprint("auth", __name__)
 
 
 def _destino_seguro(destino):
-    """Solo rutas internas: evita que ?next= redirija a un sitio externo."""
     if destino and destino.startswith("/") and not destino.startswith("//") and "\\" not in destino:
         return destino
     return None
@@ -19,19 +18,24 @@ def _destino_seguro(destino):
 def usuario_de_sesion():
     """Usuario de la sesión o None. Limpia la cookie si apunta a un usuario que ya no existe."""
     usuario_id = session.get("usuario_id")
-    usuario = db.session.get(Usuario, usuario_id) if usuario_id else None
-    if usuario is None and usuario_id is not None:
+    if usuario_id is None:
+        return None
+    usuario = db.session.get(Usuario, usuario_id)
+    if usuario is None:
         session.clear()
     return usuario
+
+
+@bp.before_app_request
+def _cargar_usuario_en_g():
+    g.usuario = usuario_de_sesion()
 
 
 def login_required(vista):
     @wraps(vista)
     def envoltura(*args, **kwargs):
-        usuario = usuario_de_sesion()
-        if usuario is None:
+        if g.usuario is None:
             return redirect(url_for("auth.login", next=request.path))
-        g.usuario = usuario
         return vista(*args, **kwargs)
 
     return envoltura
@@ -39,8 +43,8 @@ def login_required(vista):
 
 @bp.route("/login", methods=["GET", "POST"])
 def login():
-    if session.get("usuario_id"):
-        return redirect(url_for("productos.lista"))
+    if g.usuario is not None:
+        return redirect("/")
 
     form = LoginForm()
     if form.validate_on_submit():
@@ -51,7 +55,7 @@ def login():
         if usuario and usuario.check_password(form.password.data):
             session.clear()
             session["usuario_id"] = usuario.id
-            return redirect(_destino_seguro(request.args.get("next")) or url_for("productos.lista"))
+            return redirect(_destino_seguro(request.args.get("next")) or "/")
 
         flash("Correo o contraseña incorrectos.", "error")
 

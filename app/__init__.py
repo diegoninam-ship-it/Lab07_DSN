@@ -23,6 +23,15 @@ def create_app(config_overrides=None):
 
     app.register_blueprint(publico_bp)
 
+    if app.config["APP_MODE"] == "web":
+        from app.blueprints.auth import bp as auth_bp
+
+        app.register_blueprint(auth_bp)
+
+        @app.context_processor
+        def inyectar_servidor():
+            return {"server_id": app.config["SERVER_ID"]}
+
     from app.cli import register_cli
 
     register_cli(app)
