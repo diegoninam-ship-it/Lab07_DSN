@@ -16,6 +16,7 @@ def create_app():
     migrate.init_app(app, db)
     csrf.init_app(app)
 
+    from app import models  # noqa: F401 — registra las tablas para Flask-Migrate
     from app.publico import bp as publico_bp
     app.register_blueprint(publico_bp)  # /health, /whoami, /carga en ambos modos
 
