@@ -49,16 +49,17 @@ La etapa 3 se hace a mano con fines de aprendizaje DevOps. La sección 11 es sol
 
 - Planificación cerrada (segunda iteración): estructura, stack, modelo, contrato, configuración, pruebas, infraestructura de referencia y reglas del agente.
 - El repositorio contiene código de un **intento anterior** (estructura plana, sin pruebas). El agente lo **reestructura** según esta especificación, usándolo solo como referencia.
+- **F1 cerrada:** entorno local listo (ver changelog).
 
 ### Prerrequisitos antes de lanzar el agente
 
 | # | Prerrequisito | Estado |
 |---|---|---|
 | 1 | Reiniciar la base de Neon (`DROP TABLE IF EXISTS productos, usuarios, alembic_version CASCADE;`) | ✅ Hecho (2026-09-30) |
-| 2 | Docker Desktop encendido | ⏳ |
-| 3 | Este `CONTEXT.md` en la raíz del repo, con commit y push | ⏳ |
+| 2 | Docker Desktop encendido | ✅ Hecho (2026-09-30) |
+| 3 | Este `CONTEXT.md` en la raíz del repo, con commit y push | ✅ Hecho (2026-09-30) |
 
-**Siguiente paso:** el agente inicia la fase **F1**.
+**Siguiente paso:** esperar confirmación del usuario para iniciar la fase **F2**.
 
 ---
 
@@ -566,3 +567,4 @@ EC2 Amazon Linux 2023, x86_64 (t2.micro / t3.micro según Free tier):
 |---|---|
 | 2026-09-30 | Primera iteración de planificación y desarrollo parcial (estructura plana, sin pruebas automatizadas). Verificada a mano la sesión compartida entre instancias. |
 | 2026-09-30 | Segunda iteración de planificación cerrada: especificación completa para el agente (secciones 1–13). Etapa 3 renombrada a "Infraestructura y balanceo de carga", manual. Base de Neon reiniciada (prerrequisito 1). |
+| 2026-09-30 | **F1 cerrada:** venv con Python 3.14.7; dependencias de ejecución instaladas con versiones exactas de la sección 4 y congeladas en `requirements.txt` (`pip freeze`, UTF-8); `requirements-dev.txt` agrega `pytest==9.1.1` y `pytest-cov==7.1.0`; contenedor `postgres:18-alpine` en `localhost:5433` con `lab07_dev` y `lab07_test`; `.env` de desarrollo generado (`SECRET_KEY` propio, no compartido); `.gitignore` completado con `.pytest_cache/`, `.coverage`, `htmlcov/`. Sin código de app tocado todavía. |
