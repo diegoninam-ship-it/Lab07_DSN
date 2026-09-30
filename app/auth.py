@@ -16,13 +16,20 @@ def _destino_seguro(destino):
     return None
 
 
+def usuario_de_sesion():
+    """Usuario de la sesión o None. Limpia la cookie si apunta a un usuario que ya no existe."""
+    usuario_id = session.get("usuario_id")
+    usuario = db.session.get(Usuario, usuario_id) if usuario_id else None
+    if usuario is None and usuario_id is not None:
+        session.clear()
+    return usuario
+
+
 def login_required(vista):
     @wraps(vista)
     def envoltura(*args, **kwargs):
-        usuario_id = session.get("usuario_id")
-        usuario = db.session.get(Usuario, usuario_id) if usuario_id else None
+        usuario = usuario_de_sesion()
         if usuario is None:
-            session.clear()  # cookie de un usuario que ya no existe
             return redirect(url_for("auth.login", next=request.path))
         g.usuario = usuario
         return vista(*args, **kwargs)

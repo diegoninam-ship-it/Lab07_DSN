@@ -33,8 +33,7 @@ def crear():
     return render_template("productos/form.html", form=form, titulo="Nuevo producto")
 
 
-@bp.route("/productos/<int:producto_id>/editar", methods=["GET", "POST"])
-@login_required
+@bp.route("/productos/<int(max=2147483647):producto_id>/editar", methods=["GET", "POST"])@login_required
 def editar(producto_id):
     producto = db.get_or_404(Producto, producto_id)
     form = ProductoForm(obj=producto)  # en GET precarga los valores; en POST manda el formulario enviado
@@ -49,8 +48,7 @@ def editar(producto_id):
     return render_template("productos/form.html", form=form, titulo="Editar producto")
 
 
-@bp.post("/productos/<int:producto_id>/eliminar")
-@login_required
+@bp.post("/productos/<int(max=2147483647):producto_id>/eliminar")@login_required
 def eliminar(producto_id):
     producto = db.get_or_404(Producto, producto_id)
     db.session.delete(producto)

@@ -26,7 +26,12 @@ def create_app():
 
         app.register_blueprint(auth_bp)
         app.register_blueprint(productos_bp)
-    # APP_MODE=api: el blueprint de la API se agrega para el Ejercicio 4
+    elif app.config["APP_MODE"] == "api":
+        from app.api import register_api
+
+        register_api(app)
+    else:
+        raise RuntimeError(f"APP_MODE inválido: {app.config['APP_MODE']!r} (use 'web' o 'api')")
 
     @app.context_processor
     def inyectar_servidor():
