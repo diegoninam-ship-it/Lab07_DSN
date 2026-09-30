@@ -7,7 +7,6 @@ bp = Blueprint("publico", __name__)
 
 @bp.get("/health")
 def health():
-    # No toca la BD: una caída de Neon no debe tumbar todos los targets del ALB
     return "ok", 200
 
 
@@ -21,6 +20,6 @@ def carga():
     if not current_app.config["LOAD_TEST"]:
         abort(404)
     dato = b"lab07"
-    for _ in range(200_000):
+    for _ in range(current_app.config["CARGA_ITERACIONES"]):
         dato = hashlib.sha256(dato).digest()
     return f"carga completada en {current_app.config['SERVER_ID']}", 200

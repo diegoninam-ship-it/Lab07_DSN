@@ -1,43 +1,24 @@
-from dotenv import load_dotenv
+from flask import Flask
 
-load_dotenv()  # antes de importar Config, que lee os.environ al cargarse
-
-from flask import Flask  # noqa: E402
-
-from app.config import Config  # noqa: E402
-from app.extensions import csrf, db, migrate  # noqa: E402
+from app.config import construir_configuracion
+from app.extensions import csrf, db, migrate
 
 
-def create_app():
+def create_app(config_overrides=None):
     app = Flask(__name__)
-    app.config.from_object(Config)
+    app.config.update(construir_configuracion(config_overrides))
+
+    if app.config["DETRAS_DE_PROXY"]:
+        from werkzeug.middleware.proxy_fix import ProxyFix
+
+        app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1)
 
     db.init_app(app)
     migrate.init_app(app, db)
     csrf.init_app(app)
 
-    from app import models  # noqa: F401 — registra las tablas para Flask-Migrate
-    from app.publico import bp as publico_bp
-    app.register_blueprint(publico_bp)  # /health, /whoami, /carga en ambos modos
+    from app.blueprints.publico import bp as publico_bp
 
-    if app.config["APP_MODE"] == "web":
-        from app.auth import bp as auth_bp
-        from app.productos import bp as productos_bp
+    app.register_blueprint(publico_bp)
 
-        app.register_blueprint(auth_bp)
-        app.register_blueprint(productos_bp)
-    elif app.config["APP_MODE"] == "api":
-        from app.api import register_api
-
-        register_api(app)
-    else:
-        raise RuntimeError(f"APP_MODE inválido: {app.config['APP_MODE']!r} (use 'web' o 'api')")
-
-    @app.context_processor
-    def inyectar_servidor():
-        return {"server_id": app.config["SERVER_ID"]}
-
-    from app.cli import register_cli
-    register_cli(app)
-    
     return app

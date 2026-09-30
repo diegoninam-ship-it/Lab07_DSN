@@ -50,6 +50,7 @@ La etapa 3 se hace a mano con fines de aprendizaje DevOps. La sección 11 es sol
 - Planificación cerrada (segunda iteración): estructura, stack, modelo, contrato, configuración, pruebas, infraestructura de referencia y reglas del agente.
 - El repositorio contiene código de un **intento anterior** (estructura plana, sin pruebas). El agente lo **reestructura** según esta especificación, usándolo solo como referencia.
 - **F1 cerrada:** entorno local listo (ver changelog).
+- **F2 cerrada:** `config.py`, `extensions.py`, `create_app()`, `wsgi.py` y rutas públicas (`/health`, `/whoami`, `/carga`) reescritos según esta especificación (ver changelog).
 
 ### Prerrequisitos antes de lanzar el agente
 
@@ -59,7 +60,7 @@ La etapa 3 se hace a mano con fines de aprendizaje DevOps. La sección 11 es sol
 | 2 | Docker Desktop encendido | ✅ Hecho (2026-09-30) |
 | 3 | Este `CONTEXT.md` en la raíz del repo, con commit y push | ✅ Hecho (2026-09-30) |
 
-**Siguiente paso:** esperar confirmación del usuario para iniciar la fase **F2**.
+**Siguiente paso:** esperar confirmación del usuario para iniciar la fase **F3**.
 
 ---
 
@@ -568,3 +569,4 @@ EC2 Amazon Linux 2023, x86_64 (t2.micro / t3.micro según Free tier):
 | 2026-09-30 | Primera iteración de planificación y desarrollo parcial (estructura plana, sin pruebas automatizadas). Verificada a mano la sesión compartida entre instancias. |
 | 2026-09-30 | Segunda iteración de planificación cerrada: especificación completa para el agente (secciones 1–13). Etapa 3 renombrada a "Infraestructura y balanceo de carga", manual. Base de Neon reiniciada (prerrequisito 1). |
 | 2026-09-30 | **F1 cerrada:** venv con Python 3.14.7; dependencias de ejecución instaladas con versiones exactas de la sección 4 y congeladas en `requirements.txt` (`pip freeze`, UTF-8); `requirements-dev.txt` agrega `pytest==9.1.1` y `pytest-cov==7.1.0`; contenedor `postgres:18-alpine` en `localhost:5433` con `lab07_dev` y `lab07_test`; `.env` de desarrollo generado (`SECRET_KEY` propio, no compartido); `.gitignore` completado con `.pytest_cache/`, `.coverage`, `htmlcov/`. Sin código de app tocado todavía. |
+| 2026-09-30 | **F2 cerrada:** `app/config.py` reescrito como `construir_configuracion(config_overrides=None)` que valida todas las variables de la sección 8.2 (excepciones claras, sin leer el entorno al importar el módulo); `app/__init__.py` con `create_app(config_overrides=None)` construye la configuración en el momento de la llamada y aplica `ProxyFix` si `DETRAS_DE_PROXY=1`; `wsgi.py` es el único lugar que llama `load_dotenv()`; nuevo paquete `app/blueprints/` con `publico.py` (`/health`, `/whoami`, `/carga`, con `CARGA_ITERACIONES` configurable); `app/publico.py` (ruta antigua) eliminado. `pytest.ini` y `tests/conftest.py` creados con las salvaguardas de la sección 9.2 (exige `TEST_DATABASE_URL`, rechaza `neon.tech`). 45 pruebas nuevas (unitarias de configuración + integración de rutas públicas), todas en verde. Los archivos planos del intento anterior (`auth.py`, `productos.py`, `api.py`, `cli.py`, `forms.py`, `models.py`) se dejan intactos como referencia; se reemplazan en las fases F3–F6. |
