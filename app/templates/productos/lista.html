@@ -13,6 +13,7 @@
     <th style="padding:8px;">Precio</th>
     <th style="padding:8px;">Stock</th>
     <th style="padding:8px;">Creado por</th>
+    <th style="padding:8px;"></th>
   </tr>
   {% for p in productos %}
   <tr style="border-top:1px solid var(--line);">
@@ -20,6 +21,16 @@
     <td style="padding:10px 8px;">{{ "%.2f"|format(p.precio) }}</td>
     <td style="padding:10px 8px;">{{ p.stock }}</td>
     <td style="padding:10px 8px; color:var(--accent);">{{ p.servidor_origen }}</td>
+    <td style="padding:10px 8px;">
+      <div style="display:flex; gap:8px; align-items:center;">
+        <a class="btn-sec" href="{{ url_for('productos.editar', producto_id=p.id) }}" style="text-decoration:none;">Editar</a>
+        <form method="post" action="{{ url_for('productos.eliminar', producto_id=p.id) }}" class="inline"
+              onsubmit="return confirm('¿Eliminar este producto?');">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <button class="btn-sec" type="submit" style="color:var(--danger);">Eliminar</button>
+        </form>
+      </div>
+    </td>
   </tr>
   {% endfor %}
 </table>

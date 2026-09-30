@@ -31,3 +31,29 @@ def crear():
         flash(f"Producto creado (atendido por {producto.servidor_origen}).", "ok")
         return redirect(url_for("productos.lista"))
     return render_template("productos/form.html", form=form, titulo="Nuevo producto")
+
+
+@bp.route("/productos/<int:producto_id>/editar", methods=["GET", "POST"])
+@login_required
+def editar(producto_id):
+    producto = db.get_or_404(Producto, producto_id)
+    form = ProductoForm(obj=producto)  # en GET precarga los valores; en POST manda el formulario enviado
+    if form.validate_on_submit():
+        producto.nombre = form.nombre.data.strip()
+        producto.precio = form.precio.data
+        producto.stock = form.stock.data
+        # servidor_origen NO se toca: registra quién creó el producto, no quién lo editó
+        db.session.commit()
+        flash("Producto actualizado.", "ok")
+        return redirect(url_for("productos.lista"))
+    return render_template("productos/form.html", form=form, titulo="Editar producto")
+
+
+@bp.post("/productos/<int:producto_id>/eliminar")
+@login_required
+def eliminar(producto_id):
+    producto = db.get_or_404(Producto, producto_id)
+    db.session.delete(producto)
+    db.session.commit()
+    flash("Producto eliminado.", "ok")
+    return redirect(url_for("productos.lista"))
