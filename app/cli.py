@@ -3,23 +3,21 @@ import click
 from app.extensions import db
 from app.models import Usuario
 
-CORREO_DEMO = "demo@lab07.pe"
+CORREO_SEED = "demo@lab07.pe"
+NOMBRE_SEED = "Usuario Demo"
+PASSWORD_SEED = "Demo1234!"
 
 
 def register_cli(app):
     @app.cli.command("seed")
     def seed():
-        """Crea el usuario de prueba. Es idempotente: se puede ejecutar varias veces."""
-        existente = db.session.execute(
-            db.select(Usuario).filter_by(correo=CORREO_DEMO)
-        ).scalar_one_or_none()
-
-        if existente:
-            click.echo("El usuario demo ya existe; no se hizo ningún cambio.")
+        """Crea el usuario de demostración si no existe."""
+        if Usuario.query.filter_by(correo=CORREO_SEED).first() is not None:
+            click.echo(f"El usuario {CORREO_SEED} ya existe; no se hace nada.")
             return
 
-        usuario = Usuario(nombre="Usuario Demo", correo=CORREO_DEMO)
-        usuario.set_password("Demo1234!")
+        usuario = Usuario(nombre=NOMBRE_SEED, correo=CORREO_SEED)
+        usuario.set_password(PASSWORD_SEED)
         db.session.add(usuario)
         db.session.commit()
-        click.echo(f"Usuario demo creado: {CORREO_DEMO}")
+        click.echo(f"Usuario {CORREO_SEED} creado.")

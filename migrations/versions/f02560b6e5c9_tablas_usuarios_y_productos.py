@@ -1,8 +1,8 @@
 """tablas usuarios y productos
 
-Revision ID: 5e60de87d526
+Revision ID: f02560b6e5c9
 Revises: 
-Create Date: 2026-09-30 12:01:26.146562
+Create Date: 2026-09-30 17:24:28.254784
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '5e60de87d526'
+revision = 'f02560b6e5c9'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -24,8 +24,10 @@ def upgrade():
     sa.Column('precio', sa.Numeric(precision=10, scale=2), nullable=False),
     sa.Column('stock', sa.Integer(), nullable=False),
     sa.Column('servidor_origen', sa.String(length=100), nullable=False),
+    sa.Column('servidor_actualizacion', sa.String(length=100), nullable=True),
     sa.Column('creado_en', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
     sa.Column('actualizado_en', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
+    sa.CheckConstraint('length(trim(nombre)) > 0', name='ck_productos_nombre_no_vacio'),
     sa.CheckConstraint('precio >= 0', name='ck_productos_precio_no_negativo'),
     sa.CheckConstraint('stock >= 0', name='ck_productos_stock_no_negativo'),
     sa.PrimaryKeyConstraint('id')

@@ -22,6 +22,7 @@ class Usuario(db.Model):
 class Producto(db.Model):
     __tablename__ = "productos"
     __table_args__ = (
+        db.CheckConstraint("length(trim(nombre)) > 0", name="ck_productos_nombre_no_vacio"),
         db.CheckConstraint("precio >= 0", name="ck_productos_precio_no_negativo"),
         db.CheckConstraint("stock >= 0", name="ck_productos_stock_no_negativo"),
     )
@@ -31,6 +32,7 @@ class Producto(db.Model):
     precio = db.Column(db.Numeric(10, 2), nullable=False)
     stock = db.Column(db.Integer, nullable=False, default=0)
     servidor_origen = db.Column(db.String(100), nullable=False)
+    servidor_actualizacion = db.Column(db.String(100), nullable=True)
     creado_en = db.Column(db.DateTime(timezone=True), server_default=db.func.now(), nullable=False)
     actualizado_en = db.Column(
         db.DateTime(timezone=True), server_default=db.func.now(), onupdate=db.func.now(), nullable=False
@@ -40,9 +42,10 @@ class Producto(db.Model):
         return {
             "id": self.id,
             "nombre": self.nombre,
-            "precio": str(self.precio),
+            "precio": f"{self.precio:.2f}",
             "stock": self.stock,
             "servidor_origen": self.servidor_origen,
+            "servidor_actualizacion": self.servidor_actualizacion,
             "creado_en": self.creado_en.isoformat(),
             "actualizado_en": self.actualizado_en.isoformat(),
         }
