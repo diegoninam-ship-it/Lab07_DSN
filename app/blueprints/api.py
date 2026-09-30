@@ -2,7 +2,7 @@ from functools import wraps
 
 from flask import Blueprint, current_app, g, jsonify, request
 
-from app.auth import usuario_de_sesion
+from app.blueprints.auth import usuario_de_sesion
 from app.extensions import db
 from app.models import Producto
 
@@ -38,7 +38,7 @@ def health():
 def lista():
     # type=int devuelve el valor por defecto si el texto no es un número; luego se acota el rango
     limite = min(max(request.args.get("limite", 50, type=int), 1), 200)
-    pagina = min(max(request.args.get("pagina", 1, type=int), 1), 1_000_000)  # evita un OFFSET fuera de rango
+    pagina = min(max(request.args.get("pagina", 1, type=int), 1), 1_000_000)
     consulta = (
         db.select(Producto).order_by(Producto.id.desc()).limit(limite).offset((pagina - 1) * limite)
     )
@@ -46,7 +46,9 @@ def lista():
     total = db.session.scalar(db.select(db.func.count()).select_from(Producto))
     return jsonify(
         servidor=current_app.config["SERVER_ID"],
-        total=total, pagina=pagina, limite=limite,
+        total=total,
+        pagina=pagina,
+        limite=limite,
         productos=[p.to_dict() for p in productos],
     )
 
@@ -66,7 +68,6 @@ def register_api(app):
     @app.errorhandler(404)
     @app.errorhandler(405)
     def error_json(e):
-        # Solo bajo /api/: el resto de la app conserva sus páginas de error normales
         if request.path.startswith("/api/"):
             return jsonify(error=MENSAJES.get(e.code, e.name)), e.code
         return e

@@ -33,6 +33,10 @@ def create_app(config_overrides=None):
         @app.context_processor
         def inyectar_servidor():
             return {"server_id": app.config["SERVER_ID"]}
+    elif app.config["APP_MODE"] == "api":
+        from app.blueprints.api import register_api
+
+        register_api(app)
 
     from app.cli import register_cli
 
