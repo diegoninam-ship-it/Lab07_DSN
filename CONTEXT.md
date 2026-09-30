@@ -48,6 +48,7 @@
 | Servidor de aplicación | gunicorn |
 | Balanceo local | Nginx (en EC2 Ubuntu) |
 | Balanceo en la nube | AWS Application Load Balancer (`us-east-2`) |
+| Driver PostgreSQL | psycopg 3 (psycopg[binary]); SQLAlchemy ≥ 2.1 lo usa por defecto |
 
 ---
 
@@ -105,8 +106,8 @@ Usuario semilla: `demo@lab07.pe` / `Demo1234!` (solo pruebas).
 | `/login`, `/logout` | Público | web | Autenticación |
 | `/` y `/productos/...` | Con sesión | web | CRUD de productos (CSRF) |
 | `/health` | Público | web y api | Health checks |
-| `/whoami` | Público | web | Identidad del servidor |
-| `/carga` | Público solo con `LOAD_TEST=1` | web | Carga de CPU para el Ejercicio 5 |
+| `/whoami` | Público | web y api | Identidad del servidor |
+| `/carga` | Público solo con `LOAD_TEST=1` | web y api | Carga de CPU para el Ejercicio 5 |
 | `/api/test`, `/api/health` | Público | api | Ruteo por path (Ejercicio 4) |
 | `/api/productos` | Con sesión (401 JSON) | api | Lectura del CRUD en JSON |
 
@@ -237,3 +238,4 @@ La carpeta `deploy/` versiona toda la configuración de infraestructura, para qu
 | Fecha | Cambio |
 |---|---|
 | 2026-09-30 | Planificación cerrada: alcance completo, stack Flask + Flask-SQLAlchemy + Neon, decisiones C1–C12, arquitectura Parte A/B. Se crea este CONTEXT.md. |
+| 2026-09-30 | Estructura base (create_app, config, extensiones, endpoints públicos). Driver cambiado a psycopg 3. Blueprint público registrado en ambos modos. |
