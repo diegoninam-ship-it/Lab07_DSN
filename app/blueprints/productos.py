@@ -1,6 +1,6 @@
 from flask import Blueprint, current_app, flash, redirect, render_template, url_for
 
-from app.auth import login_required
+from app.blueprints.auth import login_required
 from app.extensions import db
 from app.forms import ProductoForm
 from app.models import Producto
@@ -37,12 +37,12 @@ def crear():
 @login_required
 def editar(producto_id):
     producto = db.get_or_404(Producto, producto_id)
-    form = ProductoForm(obj=producto)  # en GET precarga los valores; en POST manda el formulario enviado
+    form = ProductoForm(obj=producto)
     if form.validate_on_submit():
         producto.nombre = form.nombre.data.strip()
         producto.precio = form.precio.data
         producto.stock = form.stock.data
-        # servidor_origen NO se toca: registra quién creó el producto, no quién lo editó
+        producto.servidor_actualizacion = current_app.config["SERVER_ID"]
         db.session.commit()
         flash("Producto actualizado.", "ok")
         return redirect(url_for("productos.lista"))

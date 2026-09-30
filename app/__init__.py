@@ -25,8 +25,10 @@ def create_app(config_overrides=None):
 
     if app.config["APP_MODE"] == "web":
         from app.blueprints.auth import bp as auth_bp
+        from app.blueprints.productos import bp as productos_bp
 
         app.register_blueprint(auth_bp)
+        app.register_blueprint(productos_bp)
 
         @app.context_processor
         def inyectar_servidor():
