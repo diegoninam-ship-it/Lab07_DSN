@@ -384,7 +384,7 @@ Una prueba aplica la migración sobre una base vacía y compara el esquema con l
 ### 9.7 Criterio de "terminado" del agente
 
 1. `pytest` pasa con **cero fallos y cero pruebas omitidas**.
-2. Cobertura **≥ 90 %** del paquete `app/`: `pytest --cov=app --cov-report=term-missing --cov-fail-under=90` (configurado en `pytest.ini`).
+2. Cobertura **≥ 90 %** del paquete `app/`: `pytest.ini` trae `pythonpath = .` (para que `pytest` a secas encuentre el paquete `app`, sin depender de `python -m pytest`) y `addopts = --cov=app --cov-report=term-missing --cov-fail-under=90`, así que basta con `pytest`. El umbral aplica a la **suite completa**; para correr una sola prueba o un solo archivo hay que agregar `--no-cov` (si no, `pytest` puede mostrar "4 passed" y aun así terminar con código de salida distinto de cero, porque la cobertura de ese subconjunto no llega al 90 %).
 3. Una **única migración inicial** que coincide con los modelos.
 4. Ninguna prueba depende de la hora, del orden de ejecución ni de pausas con `sleep`.
 

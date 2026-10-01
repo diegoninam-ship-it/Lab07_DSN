@@ -106,10 +106,15 @@ $env:TEST_DATABASE_URL = "postgresql://lab07:lab07@localhost:5433/lab07_test"
 pytest
 ```
 
-Con cobertura (criterio de aceptación: ≥ 90 % sobre el paquete `app/`):
+`pytest.ini` ya trae `--cov=app --cov-report=term-missing --cov-fail-under=90`
+en `addopts`, así que basta con `pytest` a secas (no hace falta `python -m
+pytest` ni repetir las opciones de cobertura a mano). El umbral del 90 % se
+exige sobre la **suite completa**: si corres un solo archivo o una sola
+prueba, agrega `--no-cov`, porque la cobertura de ese subconjunto no llega al
+90 % y el comando terminaría en error aunque esa prueba haya pasado:
 
 ```powershell
-pytest --cov=app --cov-report=term-missing --cov-fail-under=90
+pytest tests/unit/test_models.py --no-cov
 ```
 
 Al inicio de la sesión de pruebas, `tests/conftest.py` deja el esquema de
