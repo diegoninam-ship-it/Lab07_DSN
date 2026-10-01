@@ -43,10 +43,6 @@ class ProductoForm(FormularioBase):
         "Stock", validators=[InputRequired(), numero_valido, NumberRange(min=0, max=1_000_000)]
     )
 
-    def validate_nombre(self, campo):
-        if not campo.data.strip():
-            raise ValidationError("Este campo es obligatorio.")
-
     def validate_precio(self, campo):
         if campo.data.as_tuple().exponent < -2:
             raise ValidationError("Máximo 2 decimales.")

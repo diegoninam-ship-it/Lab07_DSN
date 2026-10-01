@@ -24,6 +24,35 @@ def _cliente_autenticado(app):
     return client
 
 
+def test_formulario_nuevo_producto_se_renderiza():
+    app = _app_sin_csrf()
+    _crear_usuario(app)
+    client = _cliente_autenticado(app)
+    respuesta = client.get("/productos/nuevo")
+    assert respuesta.status_code == 200
+
+
+def test_formulario_nuevo_producto_invalido_reeemite_el_formulario():
+    app = _app_sin_csrf()
+    _crear_usuario(app)
+    client = _cliente_autenticado(app)
+    respuesta = client.post("/productos/nuevo", data={"nombre": "", "precio": "1", "stock": "1"})
+    assert respuesta.status_code == 200
+
+
+def test_editar_producto_get_precarga_valores():
+    app = _app_sin_csrf()
+    _crear_usuario(app)
+    client = _cliente_autenticado(app)
+    client.post("/productos/nuevo", data={"nombre": "Silla", "precio": "50.00", "stock": "2"})
+    with app.app_context():
+        producto_id = db.session.execute(db.select(Producto)).scalar_one().id
+
+    respuesta = client.get(f"/productos/{producto_id}/editar")
+    assert respuesta.status_code == 200
+    assert "Silla" in respuesta.get_data(as_text=True)
+
+
 def test_lista_requiere_sesion():
     app = _app_sin_csrf()
     with app.test_client() as client:

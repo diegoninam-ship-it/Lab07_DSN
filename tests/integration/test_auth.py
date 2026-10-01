@@ -38,6 +38,16 @@ def test_login_correcto_redirige_y_guarda_solo_usuario_id():
             assert dict(sesion) == {"usuario_id": usuario_id}
 
 
+def test_login_con_sesion_activa_redirige_a_la_raiz():
+    app = _app_sin_csrf()
+    _crear_usuario(app)
+    with app.test_client() as client:
+        client.post("/login", data={"correo": "demo@lab07.pe", "password": "Demo1234!"})
+        respuesta = client.get("/login")
+    assert respuesta.status_code == 302
+    assert respuesta.headers["Location"] == "/"
+
+
 def test_login_incorrecto_mensaje_unico():
     app = _app_sin_csrf()
     _crear_usuario(app)
