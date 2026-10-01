@@ -36,7 +36,7 @@
 | # | Etapa | Responsable | Estado |
 |---|---|---|---|
 | 1 | Planificación | Usuario + asistente | ✅ Cerrada |
-| 2 | Desarrollo (código y pruebas) | **Agente de IA**, guiado por este archivo | ⏳ Pendiente |
+| 2 | Desarrollo (código y pruebas) | **Agente de IA**, guiado por este archivo | ✅ Cerrada |
 | 3 | Infraestructura y balanceo de carga (Docker, Nginx, AWS) | **Usuario, de forma manual** | ⏳ Pendiente |
 
 La etapa 3 se hace a mano con fines de aprendizaje DevOps. La sección 11 es solo una **referencia** para esa etapa y está **fuera del alcance del agente**.
@@ -47,8 +47,9 @@ La etapa 3 se hace a mano con fines de aprendizaje DevOps. La sección 11 es sol
 
 **Última actualización:** 2026-09-30
 
+- **Etapa 2 (Desarrollo) cerrada.** Las fases F1–F9 están completas; el agente entrega el código, las pruebas, el `README.md` y el `.env.example`. Sigue la **etapa 3 (Infraestructura y balanceo de carga)**, manual, a cargo del usuario (sección 11).
 - Planificación cerrada (segunda iteración): estructura, stack, modelo, contrato, configuración, pruebas, infraestructura de referencia y reglas del agente.
-- El repositorio contiene código de un **intento anterior** (estructura plana, sin pruebas). El agente lo **reestructura** según esta especificación, usándolo solo como referencia.
+- El repositorio ya no contiene código del intento anterior (estructura plana, sin pruebas): todo fue reestructurado fase a fase según esta especificación.
 - **F1 cerrada:** entorno local listo (ver changelog).
 - **F2 cerrada:** `config.py`, `extensions.py`, `create_app()`, `wsgi.py` y rutas públicas (`/health`, `/whoami`, `/carga`) reescritos según esta especificación (ver changelog).
 - **F3 cerrada:** modelos `Usuario` y `Producto`, migración inicial única y `flask seed` (ver changelog).
@@ -57,6 +58,7 @@ La etapa 3 se hace a mano con fines de aprendizaje DevOps. La sección 11 es sol
 - **F6 cerrada:** API de solo lectura (ver changelog).
 - **F7 cerrada:** cabecera `X-Servidor`, páginas de error propias, CSS externo y pie de página (ver changelog).
 - **F8 cerrada:** bloque multi-instancia, migración sincronizada y cobertura 99.70 % — criterio de "terminado" del agente (9.7) cumplido (ver changelog).
+- **F9 cerrada:** `README.md`, `.env.example` y cierre de este archivo (ver changelog). **Esta es la última fase del agente.**
 
 ### Prerrequisitos antes de lanzar el agente
 
@@ -66,7 +68,7 @@ La etapa 3 se hace a mano con fines de aprendizaje DevOps. La sección 11 es sol
 | 2 | Docker Desktop encendido | ✅ Hecho (2026-09-30) |
 | 3 | Este `CONTEXT.md` en la raíz del repo, con commit y push | ✅ Hecho (2026-09-30) |
 
-**Siguiente paso:** esperar confirmación del usuario para iniciar la fase **F9** (último paso del agente).
+**Siguiente paso:** ninguno para el agente. El trabajo de la etapa 2 está completo; sigue la etapa 3 (infraestructura y balanceo de carga), manual, a cargo del usuario — ver la sección 9.8 (aceptación manual contra Neon) y la sección 11 (referencia de infraestructura).
 
 ---
 
@@ -554,7 +556,7 @@ EC2 Amazon Linux 2023, x86_64 (t2.micro / t3.micro según Free tier):
 
 ## 13. Checklist del laboratorio
 
-- [ ] Etapa 2: criterio de terminado del agente (9.7)
+- [x] Etapa 2: criterio de terminado del agente (9.7)
 - [ ] Aceptación manual contra Neon (9.8)
 - [ ] Parte A: Nginx + 3 backends (Round Robin)
 - [ ] Ejercicio 1: pesos 5/3/2, 100 peticiones a `/whoami`
@@ -582,3 +584,4 @@ EC2 Amazon Linux 2023, x86_64 (t2.micro / t3.micro según Free tier):
 | 2026-09-30 | **F6 cerrada:** nuevo `app/blueprints/api.py` con prefijo `/api`: `GET /api/test` y `GET /api/health` públicos, `GET /api/productos` (paginado, protegido con `api_login_required` basado en la cookie de sesión) y `GET /api/productos/<int(max=2147483647):id>`. `register_api()` agrega manejadores de error 404/405 que devuelven JSON solo bajo `/api/` (fuera de ese prefijo se conserva el comportamiento por defecto de Flask, pendiente de reemplazo en F7). `create_app()` registra este blueprint solo en modo `api`; en ese modo no se registran `auth` ni `productos`, así que `/login`, `/logout`, `/` y `/productos/...` responden 404. `app/api.py` (plano) eliminado. 21 pruebas nuevas: forma exacta del JSON, 401 sin sesión y con cookie inválida, límites de paginación (incluida página gigante sin error 500), 404/405 en JSON, y las rutas web inexistentes en modo `api`. 118 pruebas en total, todas en verde. |
 | 2026-09-30 | **F7 cerrada:** `create_app()` centraliza, para ambos modos, un `after_request` que agrega `X-Servidor` a toda respuesta y manejadores de error para `CSRFError` (400), 404, 405 y 500 que devuelven JSON bajo `/api/` y páginas HTML propias (`templates/errores/400.html`, `404.html` —reutilizada también para 405—, `500.html`) fuera de ese prefijo, todas sin traceback y con el pie "Atendido por" heredado de `base.html`. El manejo de errores que vivía en `app/blueprints/api.py` (`register_api`) se eliminó por quedar duplicado; ese módulo ahora solo expone el blueprint `bp`. El CSS en línea de `base.html` se movió a `app/static/css/app.css`, enlazado con `<link>`. Verificado a mano en el navegador: CSS externo aplicado y página 404 propia con pie de página. 12 pruebas nuevas: `X-Servidor` en 200/302/400/404/405/500 y en JSON, páginas 400/404/500 propias sin traceback (incluida una ruta de prueba registrada dinámicamente que lanza una excepción), 500 en modo `api` como JSON sin traceback, CSS servido desde `/static/css/app.css`, pie de página presente. 130 pruebas en total, todas en verde. |
 | 2026-09-30 | **F8 cerrada:** nuevo `tests/integration/test_multi_instancia.py` con las 5 filas de la sección 9.5 (login en A/cookie usada en B, formulario de A enviado a B con CSRF aceptado, cookie de una instancia `web` aceptada en una `api`, crear en A/editar en B con `servidor_origen`/`servidor_actualizacion` correctos, control negativo con `SECRET_KEY` distinto → cookie rechazada), transfiriendo la cookie real entre clientes de prueba con `client.set_cookie()`. Se eliminó `ProductoForm.validate_nombre`: era código muerto, ya que `DataRequired` de WTForms trata las cadenas de solo espacios como vacías. Pruebas nuevas para cerrar huecos de cobertura con casos reales del contrato: `GET /productos/nuevo`, reemisión del formulario inválido, precarga en `GET /productos/<id>/editar`, `GET /login` con sesión activa (redirige a `/`), y `DETRAS_DE_PROXY=1` ejercitando `ProxyFix`. La prueba de migración sincronizada con los modelos (`compare_metadata`), ya existente desde F3, se mantiene en verde. **Criterio de "terminado" del agente (9.7) cumplido:** 140 pruebas, cero fallos, cero omitidas; cobertura 99.70 % (`pytest --cov=app --cov-report=term-missing --cov-fail-under=90`); una única migración inicial; ninguna prueba depende de la hora, del orden de ejecución ni de `sleep`. |
+| 2026-09-30 | **F9 cerrada — etapa 2 (Desarrollo) completa.** `README.md` nuevo: requisitos, instalación paso a paso (venv, dependencias, contenedor PostgreSQL, `.env`, migración, `flask seed`), ejecución (`flask run` / `gunicorn wsgi:app`), variables de entorno más relevantes, cómo correr las pruebas con y sin cobertura, estructura del proyecto, y los pasos de aceptación manual contra Neon que le corresponden al usuario (9.8). `.env.example` reescrito: documenta las 10 variables de la sección 8.2 con comentarios, corrige el `SERVER_ID` de ejemplo (tenía un carácter no-ASCII, inválido según la validación de la sección 8.2), y separa el valor de desarrollo local (contenedor Docker) del de producción (Neon, comentado). Esta tabla (sección 3) y la sección 14 quedan como cierre; no se modificaron las secciones de decisiones (12) sin aprobación. Siguiente paso: ninguno para el agente — sigue la etapa 3, manual, a cargo del usuario. |
