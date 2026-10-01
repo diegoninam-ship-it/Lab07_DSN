@@ -98,8 +98,18 @@ La app se controla por variables de entorno (ver sección 8 de
 ## Pruebas
 
 Las pruebas usan **siempre** `lab07_test`, nunca `lab07_dev`, y se niegan a
-ejecutarse si `TEST_DATABASE_URL` apunta a Neon. Si el contenedor de
-PostgreSQL del paso de instalación ya está corriendo:
+ejecutarse si `TEST_DATABASE_URL` apunta a Neon. Si ya la definiste en `.env`
+(como en el paso de instalación), **no hace falta exportarla a mano**: basta
+con
+
+```powershell
+pytest
+```
+
+`tests/conftest.py` busca `TEST_DATABASE_URL` primero en el entorno y, si no
+está, solo esa clave en `.env` (sin tocar el resto del entorno del proceso).
+Si quieres apuntar a otra base sin tocar `.env`, exporta la variable y gana
+sobre lo que haya en el archivo:
 
 ```powershell
 $env:TEST_DATABASE_URL = "postgresql://lab07:lab07@localhost:5433/lab07_test"

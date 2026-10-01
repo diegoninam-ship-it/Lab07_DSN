@@ -5,28 +5,53 @@ from pathlib import Path
 
 import pytest
 import sqlalchemy as sa
+from dotenv import dotenv_values
 
 from app import create_app
 
 RAIZ = Path(__file__).resolve().parent.parent
 TABLAS_DE_DATOS = ["productos", "usuarios"]
 
+_test_database_url = None
 
-def pytest_configure(config):
-    test_database_url = os.environ.get("TEST_DATABASE_URL")
-    if not test_database_url:
-        pytest.exit(
-            "TEST_DATABASE_URL no está definida. "
+
+class ConfiguracionDePruebasInvalida(Exception):
+    """TEST_DATABASE_URL falta o apunta a Neon."""
+
+
+def resolver_test_database_url(entorno, ruta_env):
+    """Resuelve TEST_DATABASE_URL en orden: (1) variable de entorno;
+    (2) solo esa clave leída de ``ruta_env`` con ``dotenv_values`` —sin
+    ``load_dotenv`` y sin tocar ``os.environ``, para no contaminar las
+    pruebas de configuración—; (3) si no aparece en ninguna de las dos,
+    ``ConfiguracionDePruebasInvalida``. El rechazo de ``neon.tech`` se
+    aplica al valor resuelto, venga de donde venga.
+    """
+    valor = entorno.get("TEST_DATABASE_URL") or dotenv_values(ruta_env).get("TEST_DATABASE_URL")
+    if not valor:
+        raise ConfiguracionDePruebasInvalida(
+            "TEST_DATABASE_URL no está definida (ni en el entorno ni en .env). "
             "Defínela antes de ejecutar las pruebas (nunca uses DATABASE_URL)."
         )
-    if "neon.tech" in test_database_url:
-        pytest.exit("TEST_DATABASE_URL apunta a Neon. Las pruebas nunca deben ejecutarse contra Neon.")
+    if "neon.tech" in valor:
+        raise ConfiguracionDePruebasInvalida(
+            "TEST_DATABASE_URL apunta a Neon. Las pruebas nunca deben ejecutarse contra Neon."
+        )
+    return valor
+
+
+def pytest_configure(config):
+    global _test_database_url
+    try:
+        _test_database_url = resolver_test_database_url(os.environ, RAIZ / ".env")
+    except ConfiguracionDePruebasInvalida as error:
+        pytest.exit(str(error))
 
 
 def overrides_de_prueba(**extra):
     base = {
         "SECRET_KEY": "s" * 32,
-        "DATABASE_URL": os.environ["TEST_DATABASE_URL"],
+        "DATABASE_URL": _test_database_url,
     }
     base.update(extra)
     return base
@@ -34,7 +59,7 @@ def overrides_de_prueba(**extra):
 
 @pytest.fixture(scope="session")
 def _motor_pruebas():
-    engine = sa.create_engine(os.environ["TEST_DATABASE_URL"])
+    engine = sa.create_engine(_test_database_url)
     yield engine
     engine.dispose()
 
@@ -48,7 +73,7 @@ def _esquema_de_pruebas(_motor_pruebas):
 
     env = os.environ.copy()
     env["FLASK_APP"] = "wsgi"
-    env["DATABASE_URL"] = os.environ["TEST_DATABASE_URL"]
+    env["DATABASE_URL"] = _test_database_url
     env.pop("USE_DIRECT_DB", None)
     resultado = subprocess.run(
         [sys.executable, "-m", "flask", "db", "upgrade"],

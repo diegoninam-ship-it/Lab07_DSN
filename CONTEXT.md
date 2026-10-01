@@ -343,8 +343,8 @@ Nota: desde PostgreSQL 18 la imagen oficial cambió la ruta de datos; no copiar 
 
 ### 9.2 Salvaguardas en `conftest.py`
 
-- Las pruebas usan **solo** `TEST_DATABASE_URL`, nunca `DATABASE_URL`. Si falta, se detienen con un mensaje claro.
-- Si `TEST_DATABASE_URL` contiene `neon.tech`, **se niegan a ejecutarse**.
+- Las pruebas usan **solo** `TEST_DATABASE_URL`, nunca `DATABASE_URL`. `resolver_test_database_url()` la busca en este orden: (1) variable de entorno; (2) si falta, solo esa clave leída del `.env` del proyecto con `dotenv_values()` —sin `load_dotenv()` y sin tocar `os.environ`, para no contaminar las pruebas de configuración—; (3) si no aparece en ninguna de las dos, la sesión se detiene con un mensaje claro. **Exportar `TEST_DATABASE_URL` a mano es opcional** si ya está en `.env`.
+- Si el valor resuelto (venga de donde venga) contiene `neon.tech`, **se niegan a ejecutarse**.
 - Al inicio de la sesión de pruebas: esquema limpio y **migración aplicada** (no `create_all`), para probar la migración real.
 - Entre pruebas: `TRUNCATE ... RESTART IDENTITY CASCADE` de las tablas de datos.
 - Las apps de prueba se crean con `create_app(config_overrides=...)`.
