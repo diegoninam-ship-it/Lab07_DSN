@@ -9,10 +9,11 @@
 <body>
 <header class="barra">
   <strong>Lab07 · Productos</strong>
-  {% if g.usuario %}
+  {% set usuario = usuario_actual() %}
+  {% if usuario %}
   <form method="post" action="{{ url_for('auth.logout') }}" class="inline">
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-    <span>{{ g.usuario.nombre }}</span>
+    <span>{{ usuario.nombre }}</span>
     <button class="btn-sec" type="submit">Salir</button>
   </form>
   {% endif %}

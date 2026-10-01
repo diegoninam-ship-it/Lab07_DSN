@@ -357,7 +357,7 @@ Nota: desde PostgreSQL 18 la imagen oficial cambió la ruta de datos; no copiar 
 
 ### 9.4 Pruebas de integración (cliente de pruebas + PostgreSQL)
 
-- **Públicas:** `/health` responde `200` **con la base inalcanzable**; `/whoami`; `/carga` con `LOAD_TEST` 0 y 1.
+- **Públicas:** `/health`, `/whoami` y `/carga` (con `LOAD_TEST` 0 y 1) responden `200` con la base inalcanzable — **tanto sin sesión como con una cookie de sesión válida**, ya que ninguna ruta pública debe consultar la base nunca, haya o no sesión activa (D5). En modo `api`, `/api/test` y `/api/health` se prueban con la misma condición (base inalcanzable + sesión válida).
 - **Autenticación:** login correcto e incorrecto con el mismo mensaje; correo con mayúsculas o espacios; `next` seguro e inseguro; logout solo `POST`; CSRF obligatorio; la sesión guarda solo `usuario_id`; cookie de usuario borrado queda invalidada.
 - **CRUD:** `servidor_origen` y `servidor_actualizacion` correctos; 404 con id inexistente y con id > 2³¹−1; HTML escapado en la lista; `confirm()` sin datos del producto; eliminar por `GET` → 405; **restricciones `CHECK` aplicadas por la base** (insertando directo con SQLAlchemy y esperando `IntegrityError`).
 - **API:** 401 sin sesión y con cookie inválida; forma exacta del JSON; paginación y sus límites (incluye `pagina` gigante sin error 500); 404/405 en JSON; rutas web inexistentes en modo `api`.

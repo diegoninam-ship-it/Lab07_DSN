@@ -35,9 +35,13 @@ def create_app(config_overrides=None):
 
         app.register_blueprint(api_bp)
 
+    from app.blueprints.auth import usuario_actual
+
     @app.context_processor
-    def inyectar_servidor():
-        return {"server_id": app.config["SERVER_ID"]}
+    def inyectar_contexto_comun():
+        # usuario_actual se registra en ambos modos: una página de error (404/500)
+        # fuera de /api/ renderiza base.html incluso cuando APP_MODE es "api".
+        return {"server_id": app.config["SERVER_ID"], "usuario_actual": usuario_actual}
 
     @app.after_request
     def agregar_cabecera_servidor(response):

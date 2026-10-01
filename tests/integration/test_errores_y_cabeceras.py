@@ -18,6 +18,22 @@ def _crear_usuario(app):
         db.session.commit()
 
 
+def test_pagina_404_en_modo_api_no_falla_con_cookie_de_sesion_web():
+    app_web = _app_web(SERVER_ID="Backend 1 - 8081")
+    _crear_usuario(app_web)
+    respuesta_login = app_web.test_client().post(
+        "/login", data={"correo": "demo@lab07.pe", "password": "Demo1234!"}
+    )
+    valor_cookie = respuesta_login.headers["Set-Cookie"].split(";")[0].split("=", 1)[1]
+
+    app_api = create_app(overrides_de_prueba(APP_MODE="api"))
+    cliente_api = app_api.test_client()
+    cliente_api.set_cookie("session", valor_cookie)
+    respuesta = cliente_api.get("/login")
+    assert respuesta.status_code == 404
+    assert "Atendido por" in respuesta.get_data(as_text=True)
+
+
 def test_x_servidor_en_200(client):
     respuesta = client.get("/health")
     assert respuesta.headers["X-Servidor"]
