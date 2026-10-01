@@ -8,8 +8,6 @@ from app.models import Producto
 
 bp = Blueprint("api", __name__, url_prefix="/api")
 
-MENSAJES = {404: "No encontrado", 405: "Método no permitido"}
-
 
 def api_login_required(vista):
     @wraps(vista)
@@ -60,14 +58,3 @@ def detalle(producto_id):
     if producto is None:
         return jsonify(error="Producto no encontrado"), 404
     return jsonify(producto.to_dict())
-
-
-def register_api(app):
-    app.register_blueprint(bp)
-
-    @app.errorhandler(404)
-    @app.errorhandler(405)
-    def error_json(e):
-        if request.path.startswith("/api/"):
-            return jsonify(error=MENSAJES.get(e.code, e.name)), e.code
-        return e
