@@ -289,7 +289,7 @@ Métodos: `set_password(password)` y `check_password(password)`. El hash nunca s
 
 ### 8.3 Valores fijos de configuración
 
-- `SQLALCHEMY_ENGINE_OPTIONS = {"pool_pre_ping": True, "pool_size": 3, "max_overflow": 2, "pool_recycle": 300}`
+- `SQLALCHEMY_ENGINE_OPTIONS = {"pool_pre_ping": True, "pool_size": 3, "max_overflow": 2, "pool_recycle": 300, "connect_args": {"connect_timeout": 10}}`. Sin este límite, un intento de conexión con la base inalcanzable depende del timeout del sistema operativo (varios intentos, uno por familia de dirección); 10 s da margen para que Neon reactive su cómputo tras inactividad, sin dejar un worker de gunicorn bloqueado indefinidamente.
 - `SQLALCHEMY_TRACK_MODIFICATIONS = False`
 - `SESSION_COOKIE_HTTPONLY = True`, `SESSION_COOKIE_SAMESITE = "Lax"`
 - `WTF_I18N_ENABLED = False` y formularios con `Meta.locales = ["es"]` (mensajes en español)

@@ -112,6 +112,7 @@ def construir_configuracion(config_overrides=None):
             "pool_size": 3,
             "max_overflow": 2,
             "pool_recycle": 300,
+            "connect_args": {"connect_timeout": 10},
         },
         "SESSION_COOKIE_HTTPONLY": True,
         "SESSION_COOKIE_SAMESITE": "Lax",

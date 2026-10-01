@@ -135,6 +135,7 @@ def test_valores_fijos_de_configuracion():
         "pool_size": 3,
         "max_overflow": 2,
         "pool_recycle": 300,
+        "connect_args": {"connect_timeout": 10},
     }
     assert config["SESSION_COOKIE_HTTPONLY"] is True
     assert config["SESSION_COOKIE_SAMESITE"] == "Lax"
